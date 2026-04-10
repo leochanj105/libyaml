@@ -45,8 +45,9 @@ done
 
 # ── Load config ──
 source "${SCRIPT_DIR}/configs/${SCENARIO}.sh"
-[ -d "$WORK_DIR" ]                || { echo "Error: WORK_DIR not prepared: $WORK_DIR"; exit 1; }
-[ -f "${WORK_DIR}/test_suite.c" ] || { echo "Error: test_suite.c not found in $WORK_DIR"; exit 1; }
+[ -d "$WORK_DIR" ]                         || { echo "Error: WORK_DIR not prepared: $WORK_DIR"; exit 1; }
+[ -f "${WORK_DIR}/test_suite.c" ]          || { echo "Error: test_suite.c not found in $WORK_DIR"; exit 1; }
+[ -f "${EXPS_DIR}/prompts/validate_fixer.md" ] || { echo "Error: fixer prompt missing: ${EXPS_DIR}/prompts/validate_fixer.md"; exit 1; }
 
 INC_FLAGS="-DHAVE_CONFIG_H=1 -I${LIBYAML_DIR}/include -I${LIBYAML_DIR}/build/include -I${LIBYAML_DIR}/src -I${WORK_DIR}"
 
@@ -91,25 +92,13 @@ for round in $(seq 1 "$MAX_ROUNDS"); do
     # Snapshot pre-fix
     cp "${WORK_DIR}/test_suite.c" "${round_dir}/test_suite.pre.c"
 
-    # Narrow fix prompt — no library knowledge, no scenario context.
-    errors_content=$(cat "$err_file")
-    PROMPT="You are fixing compile errors in a test file called test_suite.c.
-
-The file is in your current directory. It was just compiled with clang and produced these errors:
-
-=== COMPILE ERRORS ===
-${errors_content}
-=== END ERRORS ===
-
-Instructions:
-- Read test_suite.c in the current directory to see the existing code.
-- Fix ONLY the compile errors shown above. Do NOT add, remove, or rewrite tests.
-- Change as little as possible. Preserve all existing test logic, test names, and inputs.
-- You may read test_bridge.h (in the same directory) and /home/leochanj/Desktop/libyaml/include/yaml.h if you need to check a type signature or function name.
-- Do NOT read any other files. Do NOT consult coverage, strategy, or scenario documents.
-- Write the fixed test_suite.c back to the same path.
-
-Return when done."
+    # Load narrow fix prompt template and substitute compile errors.
+    # The template lives in prompts/validate_fixer.md and uses __COMPILE_ERRORS__
+    # as the single placeholder.
+    PROMPT=$(awk -v errors="$(cat "$err_file")" '
+        /__COMPILE_ERRORS__/ { print errors; next }
+        { print }
+    ' "${EXPS_DIR}/prompts/validate_fixer.md")
 
     echo "  Invoking claude (model: $MODEL)..."
     (

@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "deny": [
+      "WebFetch",
+      "WebSearch"
+    ],
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(//home/leochanj/Desktop/libyaml/src/**)",
+      "Glob(//home/leochanj/Desktop/libyaml/src/**)",
+      "Grep(//home/leochanj/Desktop/libyaml/src/**)",
+      "Read(//home/leochanj/Desktop/libyaml/include/**)",
+      "Glob(//home/leochanj/Desktop/libyaml/include/**)",
+      "Grep(//home/leochanj/Desktop/libyaml/include/**)",
+      "Read(//home/leochanj/Desktop/libyaml/build/include/**)",
+      "Bash(cargo:*)"
+    ]
+  }
+}

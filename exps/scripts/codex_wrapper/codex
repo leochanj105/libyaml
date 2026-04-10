@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Wrapper that calls the real codex binary with rate-limit retry.
+# Placed on PATH before the real codex so all scripts get retry behavior
+# without modification.
+
+REAL_CODEX="/home/leochanj/.nvm/versions/node/v22.21.1/bin/codex"
+RETRY_INTERVAL="${CLAUDE_RETRY_INTERVAL:-300}"
+MAX_WAIT="${CLAUDE_MAX_WAIT:-14400}"
+
+total_waited=0
+
+while true; do
+    set +e
+    "$REAL_CODEX" "$@"
+    rc=$?
+    set -e
+
+    # Success
+    if [ "$rc" -eq 0 ]; then
+        exit 0
+    fi
+
+    # Check if max wait exceeded
+    if [ "$total_waited" -ge "$MAX_WAIT" ]; then
+        echo "[codex-retry] Max wait (${MAX_WAIT}s) exceeded. Giving up (exit ${rc})." >&2
+        exit "$rc"
+    fi
+
+    echo "[codex-retry] Codex exited with code ${rc}. Retrying in ${RETRY_INTERVAL}s (waited ${total_waited}/${MAX_WAIT}s)..." >&2
+    sleep "$RETRY_INTERVAL"
+    total_waited=$((total_waited + RETRY_INTERVAL))
+done

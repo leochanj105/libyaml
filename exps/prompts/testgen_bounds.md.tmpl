@@ -1,0 +1,30 @@
+You are generating tests for buffer access correctness in a C library.
+
+Source code is in __TEST_CASE_DIR__/.
+
+Read the following files:
+- test_suite.c                    — current tests; add, do not remove
+- rounds/current/strategy.md      — which buffer conditions to cover
+- uncovered_bounds.md             — uncovered conditions (CSV)
+
+Rules:
+- Call ANY function available in the headers.
+- All tests deterministic.
+- Do NOT remove existing tests.
+
+Buffer sizing — CRITICAL:
+- Allocate buffers to EXACTLY the contracted size. Not larger.
+  If contract says output is N bytes, use `unsigned char out[N]`, not `out[1024]`.
+- This tests that the implementation respects buffer size contracts.
+
+Annotations — REQUIRED:
+Each bounds test must include:
+  /* BOUNDS: <FUNC>:<PARAM>:<CONTRACT_SIZE> */
+
+Test structure — same #ifdef RUN_TXXX format as other tests.
+Must compile under ALL configurations.
+Use exactly the test IDs from strategy.md.
+
+Write the complete updated test_suite.c. Output only the file content.
+
+__ADDITIONAL__

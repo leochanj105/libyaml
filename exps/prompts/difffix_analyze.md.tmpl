@@ -1,0 +1,46 @@
+You are analyzing differential test failures between a C library and its Rust transpilation.
+
+- Original C code: __TEST_CASE_DIR__/
+- Transpiled Rust code: __RUST_DIR__/
+
+Read the provided test results carefully.
+
+Step 1 — Classify each failure:
+- Compilation error (in source code)
+- Runtime error (panic, segfault, abort)
+- Output mismatch (C and Rust produced different results)
+
+Step 2 — For each failure, identify the root cause:
+- Read the test code that failed to understand what function was called.
+- For runtime errors: read the stack trace, find the exact Rust source file and line.
+  Read that code AND the corresponding C code to understand why.
+- For output mismatches: the FAIL line includes hex dumps of expected (C) vs
+  actual (Rust) bytes around the mismatch point. Use these to narrow down:
+  - WHERE the first byte differs (mismatch offset)
+  - WHETHER the output is shifted (offset error), truncated (length error),
+    or entirely different (wrong function/logic)
+  Then trace through the call chain. Read BOTH C and Rust source side by side.
+  Pay special attention to:
+  - Buffer offsets: C `func(buf + OFFSET, len)` → Rust `func(&buf[OFFSET..], len)`
+  - Length arguments: byte count vs element count
+  - Conditional compilation: `#ifdef` in C must match `#[cfg(feature)]` in Rust
+  Find the FIRST function where C and Rust diverge.
+
+## Rust wrapper naming convention
+
+The Rust library exposes C-callable wrappers with an `_rs` suffix:
+- C function `foo(...)` → Rust wrapper `foo_rs(...)` with `#[no_mangle] pub extern "C"`.
+- When tracing failures, look for `foo_rs` in the Rust source and `foo` in the C source.
+- If a test calls `foo` and fails because `foo_rs` does not exist, the root cause is
+  "missing `_rs` wrapper" — the transpilation did not produce the required wrapper.
+
+Step 3 — Generate fix goals. For each distinct root cause, write a goal file to the
+Goal output directory provided in the context above (goal_1.md, goal_2.md, ...).
+Each goal must include:
+- The exact Rust file and line where the bug is
+- What the current (wrong) Rust code does
+- What the corresponding C code does
+- What the Rust code should be changed to
+- What success looks like
+- A "## Success Criteria" section with patterns to match (error codes, symbol names)
+  so the verifier can detect when this specific goal is fixed

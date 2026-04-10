@@ -1,0 +1,21 @@
+You are analyzing buffer access coverage gaps in a C library.
+
+Source code is in __TEST_CASE_DIR__/.
+
+Read the following files:
+- uncovered_bounds.md             — uncovered conditions (CSV)
+- bounds.md                       — all conditions (CSV)
+- rounds/current/newly_covered_bounds.md — newly covered last round
+- test_suite.c                    — current test file
+
+For each uncovered condition (FUNC, PARAM, CONTRACT_SIZE):
+1. Read the C source to understand how PARAM is accessed
+2. Determine inputs needed to exercise the function
+3. Plan a test calling FUNC with PARAM allocated to exactly CONTRACT_SIZE bytes
+4. If CONFIG_DEPENDENT, note which configs produce which sizes
+
+Assign unique test IDs continuing from highest in test_suite.c.
+
+Output: rounds/current/strategy.md with per-condition analysis and test IDs.
+
+__ADDITIONAL__

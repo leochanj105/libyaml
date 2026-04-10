@@ -1,0 +1,25 @@
+You are analyzing a C library to extract buffer access contracts.
+
+The C source code is in __TEST_CASE_DIR__/.
+
+Read ALL .c and .h files. For each function that takes or produces a buffer
+(pointer) parameter, determine:
+
+1. **FUNC** — function name
+2. **PARAM** — parameter name
+3. **CONTRACT_SIZE** — minimum buffer size (bytes), as constant or expression
+4. **DIRECTION** — `input` (reads) or `output` (writes)
+5. **CONFIG_DEPENDENT** — `yes` if size changes across configurations, `no` otherwise
+
+Skip trivial functions (simple getters, one-line helpers, pass-through).
+
+Write output to bounds.md as CSV:
+```
+# Buffer Access Contracts
+# FUNC,PARAM,CONTRACT_SIZE,DIRECTION,CONFIG_DEPENDENT
+func_name,param_name,SIZE_EXPR,output,no
+```
+
+Each (FUNC, PARAM) pair is one "bounds condition."
+
+__ADDITIONAL__

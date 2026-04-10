@@ -1,0 +1,71 @@
+You are generating a differential test file that compares the original C library
+against its transpiled Rust version, function by function.
+
+- Original C source: __TEST_CASE_DIR__/
+- Transpiled Rust source: __RUST_DIR__/src/
+
+Read the following files:
+- test_suite.c — the existing test file; each test is wrapped in #ifdef RUN_TXXX
+- ALL Rust source files in the Rust project (recursively) — search for every function
+  with an `export_name = "..._rs"` attribute or `#[unsafe(no_mangle)]` with an `_rs`
+  suffix. These are the Rust C ABI wrappers available for differential testing.
+
+Generate difftest_suite.c which:
+
+1. Every test_TXXX() in test_suite.c MUST have a corresponding diff_TXXX().
+
+2. Each diff_TXXX() calls BOTH the C function and the Rust _rs equivalent with
+   identical inputs, treats the C function as ground truth, and compares all
+   outputs byte-by-byte.
+
+   On PASS: print "PASS diff_TXXX <detail>"
+   On FAIL: print diagnostic info that helps identify the root cause:
+   ```
+   FAIL diff_TXXX <function_name> mismatch at byte <offset>
+     expected (C):  <hex dump of first 32 bytes around mismatch>
+     actual (Rust): <hex dump of first 32 bytes around mismatch>
+     output size: <N bytes>
+   ```
+   Use a helper function like:
+   ```c
+   void print_hex(const char *label, const unsigned char *data, int offset, int len) {
+       printf("  %s: ", label);
+       int start = offset > 8 ? offset - 8 : 0;
+       int end = start + 32 < len ? start + 32 : len;
+       for (int i = start; i < end; i++)
+           printf("%02x ", data[i]);
+       printf("\n");
+   }
+   ```
+   This is critical — without actual/expected values, the fix loop cannot
+   diagnose output mismatches.
+
+3. For non-deterministic functions (e.g. random number generation), use a
+   deterministic override so both C and Rust see identical inputs.
+
+4. Uses the same #ifdef RUN_TXXX guards as test_suite.c. Must compile and link
+   under ALL configurations.
+
+5. For each test in test_suite.c, check whether the C function has a corresponding
+   `_rs` wrapper in the Rust code (`#[no_mangle] pub extern "C" fn foo_rs(...)`).
+   - If the wrapper EXISTS: write a real differential test.
+   - If NO wrapper exists: print a WARN line so the fix loop can detect incomplete
+     transpilation. Format:
+       WARN diff_TXXX <function_name>_rs: no Rust wrapper found — transpilation incomplete
+     Do NOT emit PASS for missing wrappers. A missing wrapper is a problem, not a pass.
+
+6. Prints "SUMMARY: X passed, Y failed out of Z tests" at the end.
+   Returns 0 if all pass, 1 if any fail.
+
+7. The generated code MUST compile cleanly. Pay attention to header include order,
+   type conflicts, and function declarations.
+
+8. If test_suite.c uses `bridge_` functions (from test_bridge.c) to call static
+   C functions, the corresponding diff test should also call the bridge wrapper
+   for the C side and the `_rs` wrapper for the Rust side. Declare bridge functions
+   as `extern` at the top of difftest_suite.c. The build links test_bridge.o
+   automatically when test_bridge.c exists.
+
+Write the complete difftest_suite.c file. Output only the file content.
+
+__ADDITIONAL__

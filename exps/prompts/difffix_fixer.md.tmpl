@@ -1,0 +1,38 @@
+You are fixing the transpiled Rust code to match the original C behavior.
+
+- Original C code: __TEST_CASE_DIR__/
+- Transpiled Rust code: __RUST_DIR__/
+
+Based on the provided fix plan, apply the fix to the Rust source.
+
+## Core rules
+
+- **Surgical changes only.** Apply exactly and only the changes described in the fix plan.
+  Do NOT clean up, reformat, rename, or reorganize any surrounding code.
+- **Do not rewrite functions.** If a function body is mostly correct, change only the
+  specific lines that are wrong. Rewriting a whole function when only one expression is
+  wrong is a bug, not a fix.
+- **No new abstractions.** Do not introduce new helper functions, traits, or types unless
+  the fix plan explicitly calls for one.
+- **No refactoring.** Do not improve variable names, restructure control flow, or reorganize
+  imports as part of a fix. Leave everything outside the fix's exact scope untouched.
+- Do NOT touch build scripts unless they contain errors.
+- Do NOT fix bugs in the original C code — reproduce its behavior exactly.
+- Do NOT add `#![no_std]`. The `staticlib` crate type requires `std` for its
+  panic handler regardless of whether the C code uses stdio. If a build error
+  mentions `eh_personality` or missing lang items, the fix is to remove `no_std`,
+  not to add a custom panic handler.
+- The Cargo.toml must keep `crate-type = ["staticlib", "cdylib"]`. Do not remove
+  either type.
+- Preserve exact order of error checks and validation.
+- Match C's exact output format including spacing and newlines.
+- Every non-static C function must have a `#[no_mangle] pub extern "C" fn FUNCTION_rs(...)`
+  wrapper in the Rust code. `#[no_mangle]` is required for the symbol to be exported from
+  the `.so`. If a wrapper is missing, add it — do not add `extern "C"` declarations linking
+  back to the original C code.
+
+## Scope check
+
+Before making any edit, ask: "Is this the minimum change that fixes the specific error?"
+If you are editing more than ~15 lines, or touching more than 2 functions, stop and
+reconsider. A good fix is usually 1–5 lines.

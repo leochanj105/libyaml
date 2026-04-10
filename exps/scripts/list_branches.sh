@@ -11,7 +11,8 @@ set -euo pipefail
 #   ./list_branches.sh --with-cols           # include column numbers
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="${SCRIPT_DIR}/build_cov/test_bin"
+EXPS_DIR="$(dirname "$SCRIPT_DIR")"
+BIN="${EXPS_DIR}/build_cov/test_bin"
 
-cd "$SCRIPT_DIR"
+cd "$EXPS_DIR"
 exec python3 -m cov.list_branches "$BIN" "$@"

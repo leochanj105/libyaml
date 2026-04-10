@@ -14,8 +14,9 @@ set -euo pipefail
 # (--uncovered/--executed require --run, since they need profdata)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="${SCRIPT_DIR}/build_cov/test_bin"
-PROFDATA="${SCRIPT_DIR}/build_cov/coverage.profdata"
+EXPS_DIR="$(dirname "$SCRIPT_DIR")"
+BIN="${EXPS_DIR}/build_cov/test_bin"
+PROFDATA="${EXPS_DIR}/build_cov/coverage.profdata"
 
 ARGS=()
 WANT_PROFDATA=0
@@ -30,5 +31,5 @@ if [ "$WANT_PROFDATA" -eq 1 ] && [ -f "$PROFDATA" ]; then
     ARGS+=(--profdata "$PROFDATA")
 fi
 
-cd "$SCRIPT_DIR"
+cd "$EXPS_DIR"
 exec python3 -m cov.list_functions "$BIN" "${ARGS[@]}"

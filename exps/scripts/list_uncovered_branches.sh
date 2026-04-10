@@ -12,8 +12,9 @@ set -euo pipefail
 # Prerequisites: ./build_cov.sh <test.c> --run (needs profdata)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="${SCRIPT_DIR}/build_cov/test_bin"
-PROFDATA="${SCRIPT_DIR}/build_cov/coverage.profdata"
+EXPS_DIR="$(dirname "$SCRIPT_DIR")"
+BIN="${EXPS_DIR}/build_cov/test_bin"
+PROFDATA="${EXPS_DIR}/build_cov/coverage.profdata"
 
-cd "$SCRIPT_DIR"
+cd "$EXPS_DIR"
 exec python3 -m cov.list_uncovered_branches "$BIN" --profdata "$PROFDATA" "$@"

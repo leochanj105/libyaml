@@ -30,14 +30,17 @@ judger/
 **Source**: `git clone --branch data https://github.com/yaml/yaml-test-suite`
 (commit 6ad3d2c, fetched 2026-04-09).
 
-Canonical cross-implementation YAML test suite. Each subdirectory is a 4-char ID
-containing:
-- `in.yaml` — YAML input (present in all 352)
-- `===` — one-line description
-- `error` — marker for inputs that should fail to parse (79 of 352)
-- `test.event` — event-format representation (present in 333 of 352)
+Canonical cross-implementation YAML test suite. Each test ID is a 4-char directory.
+Some IDs contain `in.yaml` directly; others have numbered sub-variants (`00/`, `01/`,
+etc.) each with their own `in.yaml`. Metadata directories (`name/`, `tags/`) are excluded.
 
-273 valid inputs + 79 error inputs. 115 are YAML spec examples.
+Files per test case:
+- `in.yaml` — YAML input
+- `===` — one-line description
+- `error` — marker for inputs that should fail to parse
+- `test.event` — event-format representation
+
+**402 total test inputs** (333 direct + 69 from 17 multi-variant IDs).
 
 ---
 
@@ -84,12 +87,12 @@ containing:
 
 | Test inputs | × Test functions | = Test cases |
 |-------------|-----------------|-------------|
-| 352 YAML files | × 6 arg functions | 2,112 |
-| 352 YAML files | × 4 stdin functions | 1,408 |
-| 333 event files | × 1 event function | 333 |
+| 402 YAML files | × 6 arg functions | 2,412 |
+| 402 YAML files | × 4 stdin functions | 1,608 |
+| 402 event files | × 1 event function | 402 |
 | (self-contained) test-version | 1 | 1 |
 | (self-contained) test-reader | 1 | 1 |
-| **Total** | | **3,855** |
+| **Total** | | **4,424** |
 
 ---
 

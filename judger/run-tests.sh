@@ -118,8 +118,9 @@ run_case() {
     #   0-125: normal exit
     #   124: timeout (hung)
     #   128+N: killed by signal N (e.g. 139=SIGSEGV, 134=SIGABRT)
+    # Suppress bash's "Aborted" job-control message on SIGABRT
     set +e
-    timeout "$TIMEOUT_SEC" "$bin" "$@" >"$tmp_stdout" 2>"$tmp_stderr"
+    { timeout "$TIMEOUT_SEC" "$bin" "$@" >"$tmp_stdout" 2>"$tmp_stderr"; } 2>/dev/null
     rc=$?
     set -e
 
@@ -149,7 +150,7 @@ run_case_stdin() {
     tmp_stderr=$(mktemp)
 
     set +e
-    timeout "$TIMEOUT_SEC" "$bin" <"$input_file" >"$tmp_stdout" 2>"$tmp_stderr"
+    { timeout "$TIMEOUT_SEC" "$bin" <"$input_file" >"$tmp_stdout" 2>"$tmp_stderr"; } 2>/dev/null
     rc=$?
     set -e
 
@@ -178,15 +179,18 @@ if [ -z "$SUITE_FILTER" ] || [ "$SUITE_FILTER" = "1" ]; then
     exec 3>"$OUTDIR/suite1.out"
 
     count=0
-    for dir in $(ls -d "${SCRIPT_DIR}"/yaml-test-suite/*/ 2>/dev/null | sort); do
-        id=$(basename "$dir")
-        [ -e "$dir/in.yaml" ] || continue
+    # Find all in.yaml files, including sub-variants (e.g. 2G84/00/in.yaml)
+    # Exclude name/ and tags/ metadata directories
+    while IFS= read -r inyaml; do
+        dir=$(dirname "$inyaml")
+        # Build a label from the path relative to yaml-test-suite/
+        label=$(realpath --relative-to="${SCRIPT_DIR}/yaml-test-suite" "$dir")
 
         # Arg-taking test functions × this input
         for func in "${ARG_FUNCS[@]}"; do
             bin="$BINDIR/$func"
             [ -x "$bin" ] || continue
-            run_case "func=${func} input=${id}" "$bin" "$dir/in.yaml" >&3
+            run_case "func=${func} input=${label}" "$bin" "$inyaml" >&3
             count=$((count + 1))
         done
 
@@ -194,7 +198,7 @@ if [ -z "$SUITE_FILTER" ] || [ "$SUITE_FILTER" = "1" ]; then
         for func in "${STDIN_FUNCS[@]}"; do
             bin="$BINDIR/$func"
             [ -x "$bin" ] || continue
-            run_case_stdin "func=${func} input=${id}" "$bin" "$dir/in.yaml" >&3
+            run_case_stdin "func=${func} input=${label}" "$bin" "$inyaml" >&3
             count=$((count + 1))
         done
 
@@ -203,11 +207,12 @@ if [ -z "$SUITE_FILTER" ] || [ "$SUITE_FILTER" = "1" ]; then
             for func in "${EVENT_FUNCS[@]}"; do
                 bin="$BINDIR/$func"
                 [ -x "$bin" ] || continue
-                run_case "func=${func} input=${id}" "$bin" "$dir/test.event" >&3
+                run_case "func=${func} input=${label}" "$bin" "$dir/test.event" >&3
                 count=$((count + 1))
             done
         fi
-    done
+    done < <(find "${SCRIPT_DIR}/yaml-test-suite" -name in.yaml \
+                -not -path "*/name/*" -not -path "*/tags/*" | sort)
 
     exec 3>&-
     log "Suite 1: $count test cases → $OUTDIR/suite1.out"
@@ -239,8 +244,8 @@ for f in "$OUTDIR"/suite*.out; do
     [ -f "$f" ] || continue
     sed -i \
         -e "s|${BINDIR}/[^ ']*|<BIN>|g" \
-        -e "s|${SCRIPT_DIR}/yaml-test-suite/[^ ':]*/|<INPUT>/|g" \
-        -e "s|${SCRIPT_DIR}/[^ ']*|<JUDGER>/|g" \
+        -e "s|${SCRIPT_DIR}/yaml-test-suite/[^ ':]*[/]|<INPUT>/|g" \
+        -e "s|${SCRIPT_DIR}/[^ ']*|<JUDGER>|g" \
         "$f"
 done
 

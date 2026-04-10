@@ -24,6 +24,8 @@ def main(argv=None):
                    help="With --profdata, only show functions with count == 0")
     p.add_argument("--executed", action="store_true",
                    help="With --profdata, only show functions with count > 0")
+    p.add_argument("--tagged", action="store_true",
+                   help="Prefix static functions with '[static] ' (harness format)")
     p.add_argument("--llvm-cov", default="llvm-cov-21")
     args = p.parse_args(argv)
 
@@ -43,7 +45,10 @@ def main(argv=None):
         if args.executed and f["count"] == 0:
             continue
         bare = name.split(":", 1)[-1] if is_static else name
-        out.append(bare)
+        if args.tagged and is_static:
+            out.append(f"[static] {bare}")
+        else:
+            out.append(bare)
 
     for n in out:
         print(n)

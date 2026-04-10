@@ -67,16 +67,16 @@ cp "$PROMPT_FILE" "${WORK_DIR}/testgen_prompt.md"
 echo "  Copied: ${WORK_DIR}/testgen_prompt.md"
 
 # ── 5. Write Claude Code settings.json ──
+# IMPORTANT: deny rules are evaluated FIRST and the first match wins. A bare
+# tool name in deny completely disables that tool, so we only bare-deny the
+# ones we never want (Bash, WebFetch, WebSearch). For Read/Write/Edit/Glob/Grep
+# we use path-scoped allows only — unmatched paths fall through to the
+# permission mode (dontAsk → rejected).
 mkdir -p "${WORK_DIR}/.claude"
 cat > "${WORK_DIR}/.claude/settings.json" <<SETTINGS
 {
   "permissions": {
     "deny": [
-      "Read",
-      "Write",
-      "Edit",
-      "Glob",
-      "Grep",
       "Bash",
       "WebFetch",
       "WebSearch"

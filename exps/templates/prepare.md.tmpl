@@ -1,0 +1,38 @@
+You are preparing prompt files for a C-to-Rust transpilation testing harness.
+
+## What this harness does
+
+1. Generates C tests that exercise a C library (testgen phase)
+2. Transpiles the C library to Rust (transpile step)
+3. Runs tests against both C and Rust, analyzes failures, fixes Rust code (diff-fix loop)
+
+The harness lives in __HARNESS_DIR__/. Runtime output goes to __WORK_DIR__/.
+
+## Your task
+
+Read the project's C source code in __TEST_CASE_DIR__/. Understand the functions,
+headers, build system, and any conditional compilation.
+
+Then produce finalized prompt files in __WORK_DIR__/prompts/. For each template
+`foo.md.tmpl` in __HARNESS_DIR__/templates/, write `foo.md` that:
+
+- Replaces `__TEST_CASE_DIR__` with: __TEST_CASE_DIR__
+- Replaces `__RUST_DIR__` with: __RUST_DIR__
+- Replaces `__ADDITIONAL__` with project-specific content based on what you learned
+  from reading the C source. This is NOT just pasting specialize.md — adapt based on
+  what the code actually needs:
+  - If the project has multiple backends or configs, explain the preprocessor system
+  - If functions use unusual buffer patterns, calling conventions, or output types, note them
+  - If headers have type conflicts, warn about them in the difftest prompt
+  - If the project is simple (single .c file), keep the additional content minimal
+
+**CRITICAL — Generic prompts (transpile.md, transpile_module.md, transpile_assemble.md, analyze.md, fixer.md):**
+These prompts must stay completely generic. Only substitute path placeholders.
+Do NOT add any project-specific or domain-specific content to them.
+These have no `__ADDITIONAL__` placeholder — do not add one.
+
+Write every file. Do not skip any template.
+
+## Project specialization notes
+
+__SPECIALIZE__

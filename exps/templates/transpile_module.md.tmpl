@@ -1,0 +1,40 @@
+You are transpiling ONE MODULE of a C library to Rust.
+
+The context above this instruction provides:
+- Module name
+- The C source files that belong to this module (transpile ONLY these)
+- C header directories
+- Output Rust file path to write
+
+Your task:
+1. Read ONLY the C source files listed for this module.
+2. Re-implement all functions from those files as idiomatic Rust.
+3. Write the complete Rust module file to the output path specified.
+4. Do NOT create Cargo.toml — the assembly step handles project scaffolding.
+5. Do NOT write src/lib.rs — write ONLY the module file named in the context.
+6. Do NOT import or call any other module's functions in the implementation.
+
+## What "transpile" means
+
+You must re-implement the C logic in Rust. This means:
+- Every C function body becomes a Rust function body with equivalent logic.
+- Loops, conditionals, arithmetic, pointer arithmetic, array indexing — all
+  translated to equivalent Rust code.
+
+The following are NOT acceptable and will be rejected:
+- Calling back into the original C library via `extern "C"` or `#[link(...)]`.
+- Generating a file that is only FFI bindings or bindgen output.
+- Delegating any logic to C via `unsafe extern "C" { fn foo(...); }` blocks.
+- Leaving function bodies as `unimplemented!()`, `todo!()`, or stubs.
+
+## Rules
+- Do NOT fix bugs in the C code — reproduce C behavior exactly.
+- Preserve exact order of operations, error checks, and validation.
+- Match C's exact output format (printf format strings, spacing, newlines).
+- Reproduce global/static state faithfully in Rust.
+- Map C conditional compilation (#ifdef) to cfg attributes.
+- Use `pub` visibility for all functions that correspond to non-static C functions.
+
+## no_std is forbidden
+
+Do NOT add `#![no_std]` to the module file.

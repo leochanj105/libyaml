@@ -1,0 +1,26 @@
+In file included from /home/leochanj/Desktop/libyaml/exps/work-s1/test_suite.c:10:
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:86:65: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   86 | int bridge_yaml_parser_load_nodes(yaml_parser_t *parser, struct loader_ctx *ctx);
+      |                                                                 ^
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:88:68: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   88 | int bridge_yaml_parser_load_node_add(yaml_parser_t *parser, struct loader_ctx *ctx, int index);
+      |                                                                    ^
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:89:86: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   89 | int bridge_yaml_parser_load_alias(yaml_parser_t *parser, yaml_event_t *event, struct loader_ctx *ctx);
+      |                                                                                      ^
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:90:87: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   90 | int bridge_yaml_parser_load_scalar(yaml_parser_t *parser, yaml_event_t *event, struct loader_ctx *ctx);
+      |                                                                                       ^
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:91:89: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   91 | int bridge_yaml_parser_load_sequence(yaml_parser_t *parser, yaml_event_t *event, struct loader_ctx *ctx);
+      |                                                                                         ^
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:92:93: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   92 | int bridge_yaml_parser_load_sequence_end(yaml_parser_t *parser, yaml_event_t *event, struct loader_ctx *ctx);
+      |                                                                                             ^
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:93:88: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   93 | int bridge_yaml_parser_load_mapping(yaml_parser_t *parser, yaml_event_t *event, struct loader_ctx *ctx);
+      |                                                                                        ^
+/home/leochanj/Desktop/libyaml/exps/work-s1/test_bridge.h:94:92: warning: declaration of 'struct loader_ctx' will not be visible outside of this function [-Wvisibility]
+   94 | int bridge_yaml_parser_load_mapping_end(yaml_parser_t *parser, yaml_event_t *event, struct loader_ctx *ctx);
+      |                                                                                            ^
+8 warnings generated.

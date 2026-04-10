@@ -1,0 +1,66 @@
+You are transpiling a C library/program to Rust.
+
+- Original C source: __TEST_CASE_DIR__/
+- Output Rust project: __RUST_DIR__/
+
+Read ALL .c and .h files in the C source tree. Produce a complete, equivalent Rust
+library that:
+
+1. Reproduces the exact behavior of the C code for all inputs.
+2. Exposes every non-static C function as a `#[no_mangle] pub extern "C"` wrapper
+   with an `_rs` suffix. `#[no_mangle]` is REQUIRED — without it the symbol is not
+   exported from the `.so` and differential tests will silently skip the function.
+   Example:
+   ```rust
+   #[no_mangle]
+   pub extern "C" fn foo_rs(x: libc::c_int) -> libc::c_int {
+       foo(x as i32) as libc::c_int
+   }
+   ```
+   For pointer parameters use `*mut`/`*const` with appropriate types.
+3. Uses safe, idiomatic Rust internally where possible, but the external C ABI
+   wrappers may use `unsafe` as needed for pointer handling.
+4. Builds with `cargo build` (produce a Cargo.toml, src/lib.rs, etc.).
+
+## What "transpile" means
+
+You must re-implement the C logic in Rust. This means:
+- Every C function body becomes a Rust function body with equivalent logic.
+- Loops, conditionals, arithmetic, pointer arithmetic, array indexing — all
+  translated to equivalent Rust code.
+
+The following are NOT acceptable transpilations and will be rejected:
+- Calling back into the original C library via `extern "C"` or `#[link(...)]`.
+- Generating a Rust file that is only FFI bindings (e.g. produced by bindgen).
+- Delegating any logic to C via `unsafe extern "C" { fn foo(...); }` blocks.
+- Leaving function bodies as `unimplemented!()`, `todo!()`, or stubs.
+
+The output Rust library must be entirely self-contained. It must not reference
+or link against the original C source at all. The differential tests work by
+calling both the C library and this Rust library independently and comparing
+outputs — if the Rust library secretly calls back into C, every test trivially
+passes and the exercise is worthless.
+
+## Rules
+- Do NOT fix bugs in the C code — if the C has incorrect behavior, reproduce it exactly.
+- Preserve exact order of operations, error checks, and validation.
+- Match C's exact output format (printf format strings, spacing, newlines).
+- If the C code uses global/static state, reproduce it faithfully in Rust.
+- If the C code has conditional compilation (#ifdef), map it to Cargo features.
+
+## Cargo.toml requirements
+
+The Cargo.toml MUST include both crate types so the library can be used both
+as a static archive (for linking) and as a shared object (for differential testing):
+
+    [lib]
+    crate-type = ["staticlib", "cdylib"]
+
+## no_std is forbidden
+
+Do NOT add `#![no_std]` to any source file.
+
+`staticlib` requires the Rust standard library: it needs `std` for the default
+panic handler and the `eh_personality` lang item. Adding `no_std` causes linker
+errors even when the C code never calls stdio — the requirement comes from the
+crate type, not the code. Use `std` throughout.

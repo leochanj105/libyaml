@@ -1,0 +1,27 @@
+You are assembling the final Rust library after per-module transpilation.
+
+The context above this instruction provides:
+- Rust project directory
+- List of module .rs files that have already been written (do NOT rewrite them)
+- Tasks to perform
+
+Your task:
+1. Write/update src/lib.rs to:
+   - Declare each module with `mod <name>;` (matching the filenames, without .rs extension).
+   - Re-export their public items: `pub use <name>::*;`
+   - Add `extern "C"` wrapper functions with `_rs` suffix for every public function.
+     Example: if module `crypto` has `pub fn encrypt(...)`, add:
+       #[no_mangle]
+       pub extern "C" fn encrypt_rs(...) { crypto::encrypt(...) }
+
+2. Write/update Cargo.toml to include:
+   [lib]
+   crate-type = ["staticlib", "cdylib"]
+
+   Pick a sensible package name and use edition = "2021".
+
+3. Do NOT rewrite any existing module .rs files — only modify lib.rs and Cargo.toml.
+
+## no_std is forbidden
+
+Do NOT add `#![no_std]` to any file. The `staticlib` crate type requires std.

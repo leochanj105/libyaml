@@ -1,0 +1,71 @@
+You are setting up a C-to-Rust transpilation project. The user has described
+the project below. Read their description, find and read the C source code
+they reference, understand the project structure, then generate two files.
+
+## User's project description
+
+__USER_PROMPT__
+
+## What to generate
+
+### File 1: __PROJECT_DIR__/config_overrides.sh
+
+A bash script sourced by the harness. Use `: "${VAR:=value}"` syntax.
+
+Must set at minimum:
+- `TEST_CASE_DIR` — root of the C source (from the user's description)
+- `RUST_DIR` — where transpiled Rust goes (default: `__PROJECT_DIR__/rust`)
+- `WORK_DIR` — runtime output directory (default: `__PROJECT_DIR__`)
+
+Determine from reading the actual source tree:
+- `C_SRC_DIRS` — directories containing .c files (default: `$TEST_CASE_DIR/src`)
+- `C_INCLUDE_DIRS` — directories containing .h files (default: `$TEST_CASE_DIR/include`)
+- `CONFIGS_FILE` — if multi-config, point to a configs.txt you also create
+- `COVERAGE_MODES` — typically `function`
+- `MODULES` — modular transpilation. Inspect the C source layout:
+  - If the .c files are organized into named subdirectories under `C_SRC_DIRS`
+    (e.g., `src/crypto/`, `src/math/`, `src/io/`) and each subdirectory represents
+    a coherent, independently-compilable unit: set `MODULES="auto"` (the harness
+    will detect subdirectories automatically) or list them explicitly as
+    `MODULES="crypto,math,io"`.
+  - If the .c files are a flat collection (all directly under `C_SRC_DIRS` with no
+    meaningful subdirectory grouping): leave `MODULES=""` (default, single-unit).
+  - A library is "highly modular" when: it has 3+ subdirectories each with 5+ .c
+    files, each subdir has its own header group, and the subdirs have minimal
+    cross-dependencies. When in doubt, prefer `MODULES=""` (single-unit is safe;
+    modular just speeds up large projects by parallelising transpilation).
+
+If multi-config, override `get_compile_args()`, `get_cargo_features()`,
+`get_c_sources_for_config()`.
+
+If files need excluding, override `get_c_sources()`.
+
+If the user mentions an existing test runner, set `DIFFTEST_SCRIPT` and/or
+`DEFAULT_TEST_SCRIPT`.
+
+### File 2: __PROJECT_DIR__/specialize.md
+
+Concise notes for the AI that will generate tests and fix transpiled code:
+- What the library does (one line)
+- Key types, calling conventions, unusual patterns
+- How outputs should be compared (byte-for-byte, float tolerance, hex, etc.)
+- Tricky functions and why
+
+## Rules
+
+- Read the actual source tree before writing anything — get paths right
+- Use absolute paths based on what you observe on disk
+- Do not invent files or functions that don't exist
+- Write both files
+
+## After setup
+
+After generating these files, tell the user to run the preflight check:
+
+```
+bash scripts/preflight.sh <project_name>
+```
+
+This verifies the toolchain, C compilation, coverage instrumentation, and config
+functions all work before any expensive AI calls. Fix any FAIL items before
+proceeding with `run_all.sh`.

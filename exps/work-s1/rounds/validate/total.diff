@@ -1,0 +1,11 @@
+--- /home/leochanj/Desktop/libyaml/exps/work-s1/test_suite.c.orig	2026-04-10 10:13:53.797993464 -0400
++++ /home/leochanj/Desktop/libyaml/exps/work-s1/test_suite.c	2026-04-10 10:14:03.844109582 -0400
+@@ -50,7 +50,7 @@
+  * T004: bridge_yaml_check_utf8 — valid and invalid UTF-8
+  * --------------------------------------------------------------------- */
+ static void test_T004(void) {
+-    const yaml_char_t valid[]   = (const yaml_char_t *)"hello world";
++    const yaml_char_t valid[]   = "hello world";
+     /* 0xFF is not valid UTF-8 */
+     const yaml_char_t invalid[] = { 0xFF, 0x00 };
+ 

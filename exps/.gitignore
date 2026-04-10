@@ -1,0 +1,6 @@
+**/*.profraw
+**/*.profdata
+**/*.o
+**/*.a
+**/*_obj
+**/*bin

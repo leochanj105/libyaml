@@ -1,0 +1,8 @@
+{
+  "scenario":            "s1_naive",
+  "max_rounds":          3,
+  "rounds_used":         2,
+  "final_status":        "pass",
+  "final_errors":        0,
+  "total_lines_changed": 2
+}

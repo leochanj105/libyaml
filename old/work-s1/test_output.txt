@@ -1,0 +1,81 @@
+T001 version_string=0.2.5 major=0 minor=2 patch=5
+T002 malloc_ok=1
+T002 realloc_ok=1
+T002 free_ok=1
+T002 free_null_ok=1
+T003 strdup=hello
+T003 strdup_null=1
+T004 valid_utf8=1 invalid_utf8=0
+T005 token_delete_ok=1
+T006 event_delete_ok=1
+T007 stream_start_init=1 type=1
+T007 stream_end_init=1 type=2
+T007 doc_start_init=1 type=3 implicit=1
+T007 doc_end_init=1 type=4 implicit=1
+T007 alias_init=1 type=5 anchor=myanchor
+T007 scalar_init=1 type=6 value=value
+T007 seq_start_init=1 type=7
+T007 seq_end_init=1 type=8
+T007 map_start_init=1 type=9
+T007 map_end_init=1 type=10
+T008 doc_init=1 start_implicit=1 end_implicit=1
+T008 doc_delete_ok=1
+T009 scalar_id=1
+T009 node_type=1 value=hello
+T009 root_type=1
+T010 seq_id=1
+T010 append_item1=1 append_item2=1
+T010 item_count=2
+T011 map_id=1
+T011 append_pair=1
+T011 pair_count=1
+T012 parser_init=1
+T012 parser_delete_ok=1
+T013 token_count=3
+T014 event_count=5
+T015 load=1
+T015 root_type=3
+T016 encoding=1
+T017 emitter_init=1
+T017 emitter_delete_ok=1
+T018 written=6 output=hello
+
+T019 canonical=1 indent=4 width=80 unicode=1 break=2
+T020 open=1 close=1 written=0 output=
+T021 scalar_id=1
+T021 dump=1 written=6 output=world
+
+T022 root_type=3
+T022 pair_count=2
+T022 pair[0] key=name val=Alice
+T022 pair[1] key=age val=30
+T023 root_type=2
+T023 item_count=3
+T023 item[0]=a
+T023 item[1]=b
+T023 item[2]=c
+T024 token_count=12
+T025 error_type=4
+T025 got_error=1
+T026 read_ok=1 size_read=5
+T027 result=0 error_type=7 problem=test error
+T028 result=0 error_type=2 problem=bad byte offset=5
+T029 result=0 error_type=3 problem=problem
+T030 ok=1 event_count=14
+T031 written=7 output=[x, y]
+
+T032 written=7 output={k: v}
+
+T033 out_of_range_node=1
+T033 zero_index_node=1
+T034 empty_root=1
+T035 empty_utf8=1
+T036 load=1
+T036 item_count=2
+T037 doc[1] root_type=1 value=foo
+T037 doc[2] root_type=1 value=bar
+T037 doc_count=2
+T038 output="hello world"
+
+T039 result=0 error_type=6 problem=write failed
+T040 result=0 error_type=4 problem=bad token
